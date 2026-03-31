@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ПСБ Ассистент</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700&family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0e14; --surface:#14161f; --card:#1a1d2a; --border:#252836;
+  --accent:#ff4d6d; --accent2:#7b61ff; --accent3:#00d4aa;
+  --text:#f0f0f5; --muted:#6b7280; --sw:300px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:rgba(20,22,31,0.95);border-bottom:1px solid var(--border);flex-shrink:0;z-index:20;position:relative;gap:10px}
+.hl{display:flex;align-items:center;gap:10px}
+.tbtn{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s}
+.tbtn:hover,.tbtn.on{border-color:var(--accent2);color:var(--accent2);background:rgba(123,97,255,.1)}
+.logo-ic{width:32px;height:32px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo-t{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;letter-spacing:.05em}
+.logo-s{font-size:10px;color:var(--muted);margin-top:1px}
+.hchips{display:flex;gap:6px;flex-wrap:wrap}
+.hchip{font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--muted);cursor:pointer;background:transparent;white-space:nowrap;transition:all .2s}
+.hchip:hover{border-color:var(--accent2);color:var(--accent2)}
+
+.main{flex:1;display:flex;overflow:hidden;position:relative;z-index:1}
+
+.sb{width:var(--sw);flex-shrink:0;background:rgba(16,18,26,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;position:absolute;top:0;left:0;bottom:0;z-index:15;transform:translateX(calc(-1 * var(--sw)));transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 20px rgba(0,0,0,.5)}
+.sb.on{transform:translateX(0)}
+.sbh{padding:13px 14px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sbl{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.sbm{display:flex;gap:5px;flex-wrap:wrap}
+.mt{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--card);border:1px solid var(--border);color:var(--muted)}
+.mt.hi{background:rgba(123,97,255,.1);color:var(--accent2);border-color:rgba(123,97,255,.3)}
+.sbscroll{flex:1;overflow-y:auto}
+.sbscroll::-webkit-scrollbar{width:3px}
+.sbscroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.mi{border-bottom:1px solid var(--border)}
+.mh{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;transition:background .15s;user-select:none}
+.mh:hover{background:rgba(255,255,255,.03)}
+.mn{width:21px;height:21px;border-radius:6px;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.minfo{flex:1;min-width:0}
+.mname{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mwk{font-size:10px;color:var(--muted);margin-top:1px}
+.marr{font-size:9px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.mi.open .marr{transform:rotate(180deg)}
+.mbody{display:none;padding:2px 14px 8px 43px}
+.mi.open .mbody{display:block}
+.ls{display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:opacity .15s}
+.ls:last-child{border-bottom:none}
+.ls:hover{opacity:.7}
+.fmt{font-size:9px;padding:1px 5px;border-radius:4px;flex-shrink:0;margin-top:2px;font-weight:600}
+.fo{background:rgba(0,212,170,.12);color:var(--accent3)}
+.ff{background:rgba(255,77,109,.12);color:var(--accent)}
+.fm{background:rgba(123,97,255,.15);color:var(--accent2)}
+.lt{font-size:11px;line-height:1.4;color:#b0b0c0;flex:1}
+.lh{font-size:10px;color:var(--muted);flex-shrink:0;margin-top:2px}
+.sbfoot{flex-shrink:0;padding:10px 14px;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.stp{background:var(--card);border-radius:8px;padding:6px 3px;text-align:center}
+.sv{font-family:'Unbounded',sans-serif;font-size:12px;color:var(--accent2)}
+.sl{font-size:9px;color:var(--muted);margin-top:1px}
+.ovl{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:14}
+
+.cc{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;transition:margin-left .28s cubic-bezier(.4,0,.2,1)}
+.cc.sh{margin-left:var(--sw)}
+.cw{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.cw::-webkit-scrollbar{width:3px}
+.cw::-webkit-scrollbar-thumb{background:var(--border)}
+
+.msg{display:flex;gap:9px;max-width:750px;animation:fu .25s ease}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.u{flex-direction:row-reverse;align-self:flex-end}
+.msg.a{align-self:flex-start}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px;background:linear-gradient(135deg,var(--accent2),var(--accent))}
+.av.u{background:linear-gradient(135deg,var(--accent3),var(--accent2));font-size:11px;font-family:'Unbounded',sans-serif;font-weight:700}
+.bub{padding:11px 14px;border-radius:14px;font-size:13.5px;line-height:1.65;max-width:580px}
+.msg.a .bub{background:var(--card);border:1px solid var(--border);border-top-left-radius:4px}
+.msg.u .bub{background:rgba(123,97,255,.15);border:1px solid rgba(123,97,255,.3);border-top-right-radius:4px}
+.bub strong{color:var(--accent3);font-weight:600}
+.bub h3{font-family:'Unbounded',sans-serif;font-size:11px;color:var(--accent2);margin-bottom:7px;margin-top:6px}
+.bub ul{padding-left:16px;margin:4px 0}
+.bub li{margin-bottom:4px}
+.bub p{margin-bottom:6px}
+
+.qblock{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;margin-top:8px}
+.qq{font-size:13.5px;font-weight:500;margin-bottom:10px}
+.qopts{display:flex;flex-direction:column;gap:6px}
+.qo{padding:9px 12px;border-radius:9px;border:1px solid var(--border);cursor:pointer;font-size:13px;background:var(--card);color:var(--text);text-align:left;font-family:'Onest',sans-serif;transition:all .15s}
+.qo:hover:not(:disabled){border-color:var(--accent2);background:rgba(123,97,255,.08)}
+.qo.ok{border-color:var(--accent3);background:rgba(0,212,170,.1);color:var(--accent3)}
+.qo.no{border-color:var(--accent);background:rgba(255,77,109,.1);color:var(--accent)}
+
+.typing{display:flex;align-items:center;gap:4px;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:14px;border-top-left-radius:4px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:b 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes b{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
+
+.ia{padding:10px 16px 14px;background:rgba(13,14,20,.95);border-top:1px solid var(--border);flex-shrink:0}
+.qbtns{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.qb{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:'Onest',sans-serif}
+.qb:hover{border-color:var(--accent);color:var(--accent)}
+.ir{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 13px;color:var(--text);font-family:'Onest',sans-serif;font-size:13.5px;resize:none;min-height:42px;max-height:120px;outline:none;transition:border-color .2s;line-height:1.4}
+textarea:focus{border-color:var(--accent2)}
+textarea::placeholder{color:var(--muted)}
+.sbtn{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;flex-shrink:0;color:white}
+.sbtn:hover{transform:scale(1.05)}
+.sbtn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+.wlc{text-align:center;padding:22px 14px;max-width:480px;margin:auto}
+.wic{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;box-shadow:0 0 30px rgba(123,97,255,.3)}
+.wlc h2{font-family:'Unbounded',sans-serif;font-size:16px;margin-bottom:8px;background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.wlc p{font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:18px}
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left}
+.wc{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:11px;cursor:pointer;transition:all .2s}
+.wc:hover{border-color:var(--accent2);background:rgba(123,97,255,.05);transform:translateY(-2px)}
+.wi{font-size:18px;margin-bottom:5px}
+.wt{font-size:12px;font-weight:600}
+.wd{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hl">
+    <button class="tbtn" id="tbtn" onclick="toggleSB()">☰</button>
+    <div class="logo-ic">🎓</div>
+    <div>
+      <div class="logo-t">ПСБ · АССИСТЕНТ</div>
+      <div class="logo-s">Продукт и креативные индустрии</div>
+    </div>
+  </div>
+  <div class="hchips">
+    <button class="hchip" onclick="toggleSB()">📚 Программа</button>
+    <button class="hchip" onclick="qa('Проведи квиз по продуктовому мышлению')">🧠 Квиз</button>
+    <button class="hchip" onclick="qa('Помоги с домашним заданием по курсу')">✏️ ДЗ</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="sb" id="sb">
+    <div class="sbh">
+      <div class="sbl">Структура курса</div>
+      <div class="sbm">
+        <span class="mt hi">Старт 14 сен 2026</span>
+        <span class="mt">14 недель</span>
+        <span class="mt">8 модулей</span>
+      </div>
+    </div>
+    <div class="sbscroll" id="sblist"></div>
+    <div class="sbfoot">
+      <div class="stp"><div class="sv">87.5</div><div class="sl">всего ч</div></div>
+      <div class="stp"><div class="sv">31.5</div><div class="sl">онлайн</div></div>
+      <div class="stp"><div class="sv">48</div><div class="sl">очно</div></div>
+      <div class="stp"><div class="sv">8</div><div class="sl">МК</div></div>
+    </div>
+  </div>
+  <div class="ovl" id="ovl" onclick="toggleSB()"></div>
+
+  <div class="cc" id="cc">
+    <div class="cw" id="cw">
+      <div class="msg a">
+        <div class="av">🤖</div>
+        <div class="bub">
+          <div class="wlc">
+            <div class="wic">🚀</div>
+            <h2>Привет! Я ассистент курса ПСБ</h2>
+            <p>Объясню темы, помогу с домашними заданиями, проверю знания. Нажми ☰ чтобы открыть программу.</p>
+            <div class="wgrid">
+              <div class="wc" onclick="toggleSB()"><div class="wi">📚</div><div class="wt">Программа</div><div class="wd">Все 8 модулей</div></div>
+              <div class="wc" onclick="qa('Что изучают на первых двух неделях курса ПСБ?')"><div class="wi">🗓️</div><div class="wt">По неделям</div><div class="wd">Что, когда, формат</div></div>
+              <div class="wc" onclick="qa('Проведи квиз по основам продуктового мышления — задай вопрос с 4 вариантами ответа')"><div class="wi">🧠</div><div class="wt">Проверить себя</div><div class="wd">Квизы по темам</div></div>
+              <div class="wc" onclick="qa('Объясни что такое custdev простыми словами')"><div class="wi">💡</div><div class="wt">Объяснить тему</div><div class="wd">Просто и понятно</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ia">
+      <div class="qbtns">
+        <button class="qb" onclick="qa('Что такое MVP и как его составить?')">🔧 MVP</button>
+        <button class="qb" onclick="qa('Объясни custdev — как проводить пользовательские интервью')">👥 CustDev</button>
+        <button class="qb" onclick="qa('Как провести анализ рынка для стартапа?')">📊 Рынок</button>
+        <button class="qb" onclick="qa('Объясни финансовую модель стартапа')">💰 Финмодель</button>
+        <button class="qb" onclick="qa('Проведи квиз по маркетингу и UTP')">🎯 Квиз</button>
+      </div>
+      <div class="ir">
+        <textarea id="inp" placeholder="Спроси про курс..." rows="1" onkeydown="hk(event)" oninput="rs(this)"></textarea>
+        <button class="sbtn" id="sbtn" onclick="send()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var MODS=[
+  {n:1,nm:'Продукт и идеи',wk:'Нед.1–2',bg:'rgba(123,97,255,.15)',cl:'#7b61ff',ls:[
+    ['o','Предпринимательство и жизненный цикл продукта','1.5ч','Объясни предпринимательство и жизненный цикл продукта'],
+    ['o','Бизнес-модели и поиск идей','1.5ч','Расскажи про бизнес-модели и методы поиска идей'],
+    ['f','Встреча с менторами + бизнес-игра','4ч','Что такое встреча по прогрессу с менторами?'],
+    ['o','Целеполагание и карта компетенций','1.5ч','Объясни целеполагание и карту компетенций'],
+    ['m','МК: ИИ в стартапах','2ч','Как ИИ используется в стартапах?']]},
+  {n:2,nm:'Пользователь и потребности',wk:'Нед.3–4',bg:'rgba(0,212,170,.12)',cl:'#00d4aa',ls:[
+    ['o','ЦА и портрет клиента','1.5ч','Как составить портрет клиента и описать целевую аудиторию?'],
+    ['o','CustDev — развитие клиента','1.5ч','Что такое custdev и как проводить интервью?'],
+    ['f','Отработка сценариев интервью','4ч','Как отработать сценарии интервью?'],
+    ['m','МК: CJM','2ч','Что такое CJM — Customer Journey Map?'],
+    ['f','Инсайты из интервью → внедрение','2ч','Как вытащить инсайты из интервью?']]},
+  {n:3,nm:'Рынок и конкуренты',wk:'Нед.5–6',bg:'rgba(255,180,0,.12)',cl:'#ffb400',ls:[
+    ['o','Анализ рынка и инструменты','1.5ч','Как провести анализ рынка для стартапа?'],
+    ['o','Конкуренция и инновации','1.5ч','Как работать с конкурентами?'],
+    ['o','Тренды и насмотренность','1.5ч','Как искать тренды и развивать насмотренность?'],
+    ['f','Разбор исследований рынка','4ч','Как разобрать результаты исследования рынка?']]},
+  {n:4,nm:'Создание продукта',wk:'Нед.7–8',bg:'rgba(255,77,109,.12)',cl:'#ff4d6d',ls:[
+    ['o','Проектирование продукта','1.5ч','Как проектировать продукт?'],
+    ['o','Прототипирование и MVP','1.5ч','Что такое прототипирование и MVP?'],
+    ['o','Запуск, тестирование, ранние адепты','1.5ч','Как запустить и протестировать продукт?'],
+    ['o','Клиентский опыт CX','1.5ч','Что такое клиентский опыт?']]},
+  {n:5,nm:'Маркетинг и ценность',wk:'Нед.9–10',bg:'rgba(0,180,255,.12)',cl:'#00b4ff',ls:[
+    ['o','UTP и позиционирование','1.5ч','Что такое UTP и как его сформулировать?'],
+    ['o','Маркетинг-план и каналы','1.5ч','Как составить маркетинг-план?'],
+    ['o','Визуальный код проекта','1.5ч','Что такое визуальный код проекта?'],
+    ['m','МК: Яндекс.Директ','2ч','Как настроить рекламу в Яндекс.Директ?']]},
+  {n:6,nm:'Деньги и рост',wk:'Нед.11–12',bg:'rgba(0,212,100,.12)',cl:'#00d464',ls:[
+    ['o','Финмодель: доходы и расходы','1.5ч','Объясни финансовую модель стартапа'],
+    ['o','KPI и сценарии роста','1.5ч','Что такое KPI и сценарии планирования?'],
+    ['o','ИИ в финансах','1.5ч','Как использовать ИИ для финансового моделирования?']]},
+  {n:7,nm:'Команда и управление',wk:'Нед.13',bg:'rgba(255,140,0,.12)',cl:'#ff8c00',ls:[
+    ['o','Личное лидерство','1.5ч','Что такое личное лидерство и проектный менеджмент?'],
+    ['o','Построение команды','1.5ч','Как строить команду стартапа?'],
+    ['m','МК: Презентации BBDO','2ч','Как сделать отличную питч-презентацию?']]},
+  {n:8,nm:'Презентация проекта',wk:'Нед.14',bg:'rgba(255,77,109,.15)',cl:'#ff4d6d',ls:[
+    ['o','Структура питча и сторителлинг','1.5ч','Как подготовить финальный питч?'],
+    ['f','Финальный питчинг','4ч','Как подготовиться к финальному питчингу?']]}
+];
+
+var fc={o:'fo',f:'ff',m:'fm'},fn={o:'онлайн',f:'очно',m:'МК'};
+var sbOpen=false;
+
+var h='';
+for(var i=0;i<MODS.length;i++){
+  var m=MODS[i],lh='';
+  for(var j=0;j<m.ls.length;j++){
+    var l=m.ls[j];
+    lh+='<div class="ls" onclick="qa(\''+l[3].replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\')">'
+      +'<span class="fmt '+fc[l[0]]+'">'+fn[l[0]]+'</span>'
+      +'<span class="lt">'+l[1]+'</span><span class="lh">'+l[2]+'</span></div>';
+  }
+  h+='<div class="mi" id="mi'+i+'">'
+    +'<div class="mh" onclick="tmh('+i+')">'
+    +'<div class="mn" style="background:'+m.bg+';color:'+m.cl+'">'+m.n+'</div>'
+    +'<div class="minfo"><div class="mname">'+m.nm+'</div><div class="mwk">'+m.wk+'</div></div>'
+    +'<div class="marr">▼</div></div>'
+    +'<div class="mbody">'+lh+'</div></div>';
+}
+document.getElementById('sblist').innerHTML=h;
+
+function tmh(i){
+  var el=document.getElementById('mi'+i),was=el.classList.contains('open');
+  document.querySelectorAll('.mi.open').forEach(function(m){m.classList.remove('open')});
+  if(!was)el.classList.add('open');
+}
+
+function toggleSB(){
+  sbOpen=!sbOpen;
+  document.getElementById('sb').classList.toggle('on',sbOpen);
+  document.getElementById('tbtn').classList.toggle('on',sbOpen);
+  var wide=window.innerWidth>640;
+  document.getElementById('cc').classList.toggle('sh',sbOpen&&wide);
+  document.getElementById('ovl').style.display=(!wide&&sbOpen)?'block':'none';
+}
+
+var conv=[],busy=false;
+
+function qa(t){send(t);}
+
+async function send(ct){
+  var inp=document.getElementById('inp');
+  var text=ct||inp.value.trim();
+  if(!text||busy)return;
+  if(!ct){inp.value='';rs(inp);}
+  addM('u',text);
+  conv.push({role:'user',content:text});
+  setBusy(true);
+  var ty=addTy();
+  try{
+    var r=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({messages:conv})
+    });
+    var d=await r.json();
+    ty.remove();
+    if(!r.ok)throw new Error(d.error||'Ошибка сервера');
+    var raw=(d.content||[]).filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('');
+    if(!raw)throw new Error('Пустой ответ');
+    var qm=raw.match(/\[QUIZ\]([\s\S]*?)\[\/QUIZ\]/);
+    var clean=raw.replace(/\[QUIZ\][\s\S]*?\[\/QUIZ\]/g,'').trim();
+    var qh='';
+    if(qm){try{qh=bq(JSON.parse(qm[1].trim()));}catch(e){}}
+    addM('a',clean,qh);
+    conv.push({role:'assistant',content:raw});
+  }catch(e){
+    ty.remove();
+    addM('a','Ошибка: '+e.message);
+  }
+  setBusy(false);
+}
+
+function bq(q){
+  var id='q'+Date.now(),opts='';
+  for(var i=0;i<q.options.length;i++)
+    opts+='<button class="qo" id="'+id+'_'+i+'" onclick="cq(\''+id+'\','+i+','+q.correct+')">'+q.options[i]+'</button>';
+  return'<div class="qblock"><div class="qq">❓ '+q.question+'</div><div class="qopts">'+opts+'</div></div>';
+}
+
+function cq(id,ch,ok){
+  for(var i=0;i<4;i++){
+    var b=document.getElementById(id+'_'+i);
+    if(!b)continue;b.disabled=true;
+    if(i===ok)b.classList.add('ok');else if(i===ch)b.classList.add('no');
+  }
+}
+
+function addM(role,text,ex){
+  var cw=document.getElementById('cw'),d=document.createElement('div');
+  d.className='msg '+(role==='a'?'a':'u');
+  var av=role==='a'?'<div class="av">🤖</div>':'<div class="av u">Я</div>';
+  d.innerHTML=av+'<div class="bub">'+fmt(text)+(ex||'')+'</div>';
+  cw.appendChild(d);cw.scrollTop=cw.scrollHeight;
+}
+
+function addTy(){
+  var cw=document.getElementById('cw'),d=document.createElement('div');
+  d.className='msg a';
+  d.innerHTML='<div class="av">🤖</div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  cw.appendChild(d);cw.scrollTop=cw.scrollHeight;return d;
+}
+
+function fmt(t){
+  return t
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/^#{1,3} (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^[-•] (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>')
+    .replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
+}
+
+function setBusy(v){busy=v;document.getElementById('sbtn').disabled=v;}
+function hk(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function rs(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+</script>
+</body>
+</html>
